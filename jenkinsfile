@@ -7,7 +7,7 @@ pipeline {
     stages {
         stage('Git CheckOut') {
             steps {
-              git branch: 'artifactory_proj', credentialsId: '48fe98fb-a259-4c23-ad42-ad81efb455c8', url: 'http://gsgit.gslab.com/Ajay/testgit.git'
+              git branch: 'artifact-demo', credentialsId: '48fe98fb-a259-4c23-ad42-ad81efb455c8', url: 'http://gsgit.gslab.com/Ajay/testgit.git'
             }
         }
         stage('Clean and Install') {
