@@ -1,13 +1,13 @@
 pipeline {
     agent any
     environment {
-      JFROG_CRED= credentials('artifactory')
+      JFROG_CRED= credentials('artifact-demo')
            }
 
     stages {
         stage('Git CheckOut') {
             steps {
-              git branch: 'artifact-demo', credentialsId: '48fe98fb-a259-4c23-ad42-ad81efb455c8', url: 'http://gsgit.gslab.com/Ajay/testgit.git'
+              git branch: 'main', credentialsId: '48fe98fb-a259-4c23-ad42-ad81efb455c8', url: 'https://github.com/moredatta/Artifact-demo.git'
             }
         }
         stage('Clean and Install') {
@@ -22,7 +22,7 @@ pipeline {
         }
         stage ('Server'){
             steps {
-                withCredentials([usernamePassword(credentialsId: 'artifactory', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                withCredentials([usernamePassword(credentialsId: 'artifact-demo', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
   // available as an env variable, but will be masked if you try to print it out any which way
   // note: single quotes prevent Groovy interpolation; expansion is by Bourne Shell, which is what you want
   sh 'echo $PASSWORD'
@@ -34,7 +34,7 @@ pipeline {
               
                rtServer (
                  id: "Artifactory",
-                 url: 'http://localhost:8082/artifactory',
+                 url: 'http://192.168.59.1:8082/artifactory',
                  username: USERNAME,
                   password: PASSWORD,
                   bypassProxy: true,
