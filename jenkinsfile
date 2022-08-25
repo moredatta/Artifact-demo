@@ -1,0 +1,70 @@
+pipeline {
+    agent any
+    environment {
+      JFROG_CRED= credentials('artifactory')
+           }
+
+    stages {
+        stage('Git CheckOut') {
+            steps {
+              git branch: 'artifactory_proj', credentialsId: '48fe98fb-a259-4c23-ad42-ad81efb455c8', url: 'http://gsgit.gslab.com/Ajay/testgit.git'
+            }
+        }
+        stage('Clean and Install') {
+            steps {
+                sh 'mvn clean install'
+            }
+        }
+        stage ('Package'){
+            steps {
+                sh 'mvn package'
+             }
+        }
+        stage ('Server'){
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'artifactory', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+  // available as an env variable, but will be masked if you try to print it out any which way
+  // note: single quotes prevent Groovy interpolation; expansion is by Bourne Shell, which is what you want
+  sh 'echo $PASSWORD'
+  // also available as a Groovy variable
+  echo USERNAME
+  // or inside double quotes for string interpolation
+  echo "username is $USERNAME"
+
+              
+               rtServer (
+                 id: "Artifactory",
+                 url: 'http://localhost:8082/artifactory',
+                 username: USERNAME,
+                  password: PASSWORD,
+                  bypassProxy: true,
+                   timeout: 300
+                        )
+            }
+            }
+        }
+
+        stage('Upload'){
+            steps{
+                rtUpload (
+                 serverId:"Artifactory" ,
+                  spec: '''{
+                   "files": [
+                      {
+                      "pattern": "*.war",
+                      "target": "sampple-libs-snapshot-local"
+                      }
+                            ]
+                           }''',
+                        )
+            }
+        }
+        stage ('Publish build info') {
+            steps {
+                rtPublishBuildInfo (
+                    serverId: "Artifactory"
+                )
+            }
+        }
+    }
+}
