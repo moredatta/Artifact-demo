@@ -5,11 +5,6 @@ pipeline {
            }
 
     stages {
-        stage('Git CheckOut') {
-            steps {
-              git branch: 'main', credentialsId: '48fe98fb-a259-4c23-ad42-ad81efb455c8', url: 'https://github.com/moredatta/Artifact-demo.git'
-            }
-        }
         stage('Clean and Install') {
             steps {
                 sh 'mvn clean install'
